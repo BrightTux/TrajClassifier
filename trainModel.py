@@ -62,29 +62,42 @@ def class_convLstm_clare(input_shape):
     c1 = ConvLSTM2D(nb_filter=c, nb_row=3, nb_col=3, border_mode='same', return_sequences=True)(x)
 
     x = TimeDistributed(MaxPooling2D((2, 2), (2, 2)))(c1)
+    x = Dropout(0.25)(x)
 
     x = ConvLSTM2D(nb_filter=2 * c, nb_row=3, nb_col=3, border_mode='same', return_sequences=True)(x)
     x = ConvLSTM2D(nb_filter=2 * c, nb_row=3, nb_col=3, border_mode='same', return_sequences=True)(x)
     c2 = ConvLSTM2D(nb_filter=2 * c, nb_row=3, nb_col=3, border_mode='same', return_sequences=True)(x)
 
     x = TimeDistributed(MaxPooling2D((2, 2), (2, 2)))(c2)
+    x = Dropout(0.25)(x)
+
     x = ConvLSTM2D(nb_filter=3 * c, nb_row=3, nb_col=3, border_mode='same', return_sequences=True)(x)
     x = ConvLSTM2D(nb_filter=3 * c, nb_row=3, nb_col=3, border_mode='same', return_sequences=True)(x)
     c3 = ConvLSTM2D(nb_filter=3 * c, nb_row=3, nb_col=3, border_mode='same', return_sequences=True)(x)
 
     x = TimeDistributed(MaxPooling2D((2, 2), (2, 2)))(c2)
+    x = Dropout(0.25)(x)
+
     x = ConvLSTM2D(nb_filter=4 * c, nb_row=3, nb_col=3, border_mode='same', return_sequences=True)(x)
     x = ConvLSTM2D(nb_filter=4 * c, nb_row=3, nb_col=3, border_mode='same', return_sequences=True)(x)
     c4 = ConvLSTM2D(nb_filter=4 * c, nb_row=3, nb_col=3, border_mode='same', return_sequences=True)(x)
 
-    x = TimeDistributed(Dense(32))(c4)
-    fx = TimeDistributed(Dense(32))(x)
+    x = TimeDistributed(MaxPooling2D((2, 2), (2, 2)))(c4)
+    c5 = Dropout(0.25)(x)
 
-    output = TimeDistributed(Conv2D(3, 3, 3, border_mode='same', activation=softmax(fx,-1)), name='output')(x)
+    x = TimeDistributed(Flatten())(c5)
+    x = TimeDistributed(Dense(128, activation='relu')(x)
+    c6 = Dropout(0.25)(x)
+
+    #model.add(Dense(num_classes, activation='softmax'))
+
+    output = TimeDistributed(Dense(num_classes, activation='softmax')
+
+    #output = TimeDistributed(Conv2D(3, 3, 3, border_mode='same', activation=softmax(fx,-1)), name='output')(x)
 
     model = Model(input_img, output=[output])
     model.compile(loss=categorical_crossentropy(y_true, y_pred), optimizer='adadelta')
-    # model.summary()
+
 
     return model
 
