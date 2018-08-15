@@ -234,49 +234,84 @@ def class_3dconv_clare(input_shape):
         https://arxiv.org/pdf/1411.4389.pdf
     """
 
-    num_classes = 8
+    num_classes = 9
     input_img = Input(input_shape, name='input')
+    
 
-    model = Sequential()
+#    model = Sequential()
 
-    model.add(TimeDistributed(Conv2D(32, (7, 7), strides=(2, 2),
-            activation='relu', padding='same'), input_shape=input_img))
-    model.add(TimeDistributed(Conv2D(32, (3,3),
-            kernel_initializer="he_normal", activation='relu')))
-    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+#    model.add(TimeDistributed(Conv2D(32, (7, 7), strides=(2, 2),
+#            activation='relu', padding='same'), input_shape=input_img))
+#    model.add(TimeDistributed(Conv2D(32, (3,3),
+#            kernel_initializer="he_normal", activation='relu')))
+#    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
 
-    model.add(TimeDistributed(Conv2D(64, (3,3),
-            padding='same', activation='relu')))
-    model.add(TimeDistributed(Conv2D(64, (3,3),
-            padding='same', activation='relu')))
-    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+#    model.add(TimeDistributed(Conv2D(64, (3,3),
+#            padding='same', activation='relu')))
+#    model.add(TimeDistributed(Conv2D(64, (3,3),
+#            padding='same', activation='relu')))
+#    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
 
-    model.add(TimeDistributed(Conv2D(128, (3,3),
-            padding='same', activation='relu')))
-    model.add(TimeDistributed(Conv2D(128, (3,3),
-            padding='same', activation='relu')))
-    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+#    model.add(TimeDistributed(Conv2D(128, (3,3),
+#            padding='same', activation='relu')))
+#    model.add(TimeDistributed(Conv2D(128, (3,3),
+#            padding='same', activation='relu')))
+#    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
 
-    model.add(TimeDistributed(Conv2D(256, (3,3),
-            padding='same', activation='relu')))
-    model.add(TimeDistributed(Conv2D(256, (3,3),
-            padding='same', activation='relu')))
-    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+#    model.add(TimeDistributed(Conv2D(256, (3,3),
+#            padding='same', activation='relu')))
+#    model.add(TimeDistributed(Conv2D(256, (3,3),
+#            padding='same', activation='relu')))
+#    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
 
-    model.add(TimeDistributed(Conv2D(512, (3,3),
-            padding='same', activation='relu')))
-    model.add(TimeDistributed(Conv2D(512, (3,3),
-            padding='same', activation='relu')))
-    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+#    model.add(TimeDistributed(Conv2D(512, (3,3),
+#            padding='same', activation='relu')))
+#    model.add(TimeDistributed(Conv2D(512, (3,3),
+#            padding='same', activation='relu')))
+#    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
 
-    model.add(TimeDistributed(Flatten()))
+#    model.add(TimeDistributed(Flatten()))
 
-    model.add(Dropout(0.5))
-    model.add(LSTM(256, return_sequences=False, dropout=0.5))
-    model.add(Dense(num_classes, activation='softmax'))
+#    model.add(Dropout(0.5))
+#    model.add(LSTM(256, return_sequences=False, dropout=0.5))
+#    model.add(Dense(num_classes, activation='softmax'))
 
-    return model
+#    return model
+    
+    # -------------------------------
+    
+    
+    x = TimeDistributed(Conv2D(32, (7, 7), strides=(2, 2), activation='relu', padding='same'))(input_img)
+    x = TimeDistributed(Conv2D(32, (3,3), kernel_initializer="he_normal", activation='relu'))(x)
+    c1 = TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2)))(x)
 
+    x = TimeDistributed(Conv2D(64, (3,3), padding='same', activation='relu'))(c1)
+    x = TimeDistributed(Conv2D(64, (3,3), padding='same', activation='relu'))(x)
+    c2 = TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2)))(x)
+
+    x = TimeDistributed(Conv2D(128, (3,3), padding='same', activation='relu'))(c2)
+    x = TimeDistributed(Conv2D(128, (3,3), padding='same', activation='relu'))(x)
+    c3 = TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2)))(x)
+
+    x = TimeDistributed(Conv2D(256, (3,3), padding='same', activation='relu'))(c3)
+    x = TimeDistributed(Conv2D(256, (3,3), padding='same', activation='relu'))(x)
+    c4 = TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2)))(x)
+
+    x = TimeDistributed(Conv2D(512, (3,3), padding='same', activation='relu'))(c4)
+    x = TimeDistributed(Conv2D(512, (3,3), padding='same', activation='relu'))(x)
+    c5 = TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2)))(x)
+
+    c6 = TimeDistributed(Flatten(), name='flatten')(c5)
+
+	x = Dropout(0.5)(c6)
+	x = LSTM(256, return_sequences=False, dropout=0.5)(x)
+    output = Dense(num_classes, activation='softmax', name='output')(x)
+
+
+    model = Model(input_img, output=[output])
+    model.compile(loss='categorical_crossentropy', optimizer='adadelta', metrics=['accuracy'])
+	
+	return model
 
 
 # ------------------------------------------------------------------------------------------------------------------------
