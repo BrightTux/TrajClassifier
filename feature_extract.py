@@ -10,7 +10,7 @@ extract features for the first 8 (alphabetical) classes in the dataset.
 Then set the same number when training models.
 """
 import numpy as np
-
+import glob
 import os
 from os import walk
 # from data import DataSet
@@ -35,7 +35,6 @@ target_height, target_width, channel_size = 299, 299, 3
 seq_length = 40
 
 
-model = '3DConv2Dpool-graylarge-withMask'
 
 # Parameters
 params = {'shape_h': target_height, 'shape_w': target_width,
@@ -49,11 +48,9 @@ params = {'shape_h': target_height, 'shape_w': target_width,
           }
 
 
-train_list = patch_path('train_random.csv')
-test_list = patch_path('test_random.csv')
+train_list = patch_path('train_random_small.csv')
 
 f_train= open(train_list,"r")
-f_test= open(test_list,"r")
 
 
 fread_train = f_train.readlines()
@@ -69,8 +66,6 @@ for x in fread_train:
     a,b = x.split(";")
     x_train_input.append(a)
     y_train_label.append(y_classes.index(b.strip()))
-
-
 
 
 # (samples,time, rows, cols, channels)
@@ -93,8 +88,6 @@ seq_length = [len(f) for f in seq_train_x]
 
 
 
-
-
 data = DataGenerator(seq_train_x, y_train_label, **params)
 # data = DataSet(seq_length=seq_length, class_limit=class_limit)
 
@@ -111,6 +104,7 @@ for index, i in enumerate(sequences):
 
     # Get the path to the sequence for this video.
     #path = os.path.join('train', video[0])  # numpy will auto-append .npy
+    path = i
 
     # Check if we already have it.
     if os.path.isfile(path + '.npy'):
@@ -118,10 +112,10 @@ for index, i in enumerate(sequences):
         continue
 
     # Get the frames for this video.
-    frames = data.get_frames_for_sample(video)
+    frames = sorted(glob.glob(os.path.join(path, '*jpg')))
 
     # Now downsample to just the ones we need.
-    frames = data.rescale_list(frames, seq_length)
+    frames = data.rescale_list(frames, 40)
 
     # Now loop through and extract features to build the sequence.
     sequence = []
